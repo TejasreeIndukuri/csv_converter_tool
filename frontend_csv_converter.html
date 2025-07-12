@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>CSV Converter Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 40px;
+      text-align: center;
+    }
+    form {
+      background: #fff;
+      padding: 30px;
+      display: inline-block;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    input[type="file"], select, button {
+      margin: 10px 0;
+      padding: 10px;
+      width: 100%;
+      max-width: 300px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    h2 {
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h2>CSV File Converter</h2>
+  <form id="convertForm">
+    <input type="file" name="file" required><br>
+    <select name="operation" required>
+      <option value="csv_to_tsv">CSV to TSV</option>
+      <option value="csv_to_excel">CSV to Excel</option>
+      <option value="csv_to_json">CSV to JSON</option>
+      <option value="json_to_csv">JSON to CSV</option>
+    </select><br>
+    <button type="submit">Convert</button>
+  </form>
+
+  <script>
+    document.getElementById("convertForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+
+      const response = await fetch("http://localhost:5000/convert", {
+        method: "POST",
+        body: formData
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = downloadUrl;
+        a.download = "converted_file";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      } else {
+        const error = await response.json();
+        alert("Error: " + error.error);
+      }
+    });
+  </script>
+</body>
+</html>
